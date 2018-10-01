@@ -37,6 +37,6 @@ Session::checkRight("software", READ);
 Html::header(Software::getTypeName(Session::getPluralNumber()), $_SERVER['PHP_SELF'], "assets", "software");
 
 Search::show('Software');  
-echo "test here";
+//echo "test here";
 
 Html::footer();

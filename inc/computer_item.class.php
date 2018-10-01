@@ -399,13 +399,7 @@ class Computer_Item extends CommonDBRelation{
                 action='".Toolbox::getItemTypeFormURL(__CLASS__)."'>";
 
          echo "<table class='tab_cadre_fixe'>";
-                                ?>
-<form action="os_rpt_indi.php" method="post">
-    <button class="pull-right" name="id" value="<?php echo $_GET["id"]?>"><i class="fa fa-download"></i></button>
-</form>
-<br>
-<br>
-<?php
+
 
          echo "<tr class='tab_bg_2'><th colspan='2'>".__('Connect an item')."</th></tr>";
 

@@ -310,7 +310,7 @@ class SoftwareVersion extends CommonDBChild {
             echo "<th>".self::getTypeName(Session::getPluralNumber())."</th>";
             echo "<th>".__('Status')."</th>";
             echo "<th>".__('Operating system')."</th>";
-            echo "<th>"._n('Installation', 'Installations', Session::getPluralNumber())."</th>";
+            echo "<th>"._n('Installation', 'Installatios', Session::getPluralNumber())."</th>";
             echo "<th>".__('Comments')."</th>";
             echo "</tr>\n";
 

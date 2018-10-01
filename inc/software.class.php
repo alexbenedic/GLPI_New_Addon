@@ -252,7 +252,7 @@ class Software extends CommonDBTM {
       $this->showFormHeader($options);
 
       $canedit = $this->canEdit($ID);
-//echo"<button>downlaod</button>";
+echo"<button>downlaod</button>"; 
       echo "<tr class='tab_bg_1'>";
       echo "<td>" . __('Name') . "</td>";
       echo "<td>";
@@ -950,7 +950,7 @@ class Software extends CommonDBTM {
               WHERE (`glpi_softwares`.`id` != '$ID'
                      AND `glpi_softwares`.`name` = '".addslashes($this->fields["name"])."'
                      AND `glpi_softwares`.`is_deleted` = 0
-                     AND `glpi_softwares`.`name` LIKE '%security update%'
+                     AND `glpi_softwares`.`name` LIKE '%update%'
                      AND `glpi_softwares`.`is_template` = 0 " .
                          getEntitiesRestrictRequest('AND', 'glpi_softwares', 'entities_id',
                                                     getSonsOf("glpi_entities",

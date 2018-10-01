@@ -226,24 +226,16 @@ class Computer_SoftwareVersion extends CommonDBRelation {
    static function countForVersion($softwareversions_id, $entity = '') {
       global $DB;
 
-      $request = [
-         'FROM'         => 'glpi_computers_softwareversions',
-         'COUNT'        => 'cpt',
-         'INNER JOIN'   => [
-            'glpi_computers'  => [
-               'FKEY'   => [
-                  'glpi_computers'                    => 'id',
-                  'glpi_computers_softwareversions'   => 'computers_id'
-               ]
-            ]
-         ],
-         'WHERE'        => [
-            'glpi_computers_softwareversions.softwareversions_id' => $softwareversions_id,
-            'glpi_computers.is_deleted'                           => 0,
-            'glpi_computers.is_template'                          => 0,
-            'glpi_computers_softwareversions.is_deleted'          => 0
-         ] + getEntitiesRestrictCriteria('glpi_computers', '', $entity)
-      ];
+      $request = 
+          "SELECT COUNT(DISTINCT   `glpi_computers`.`name`) AS cpt 
+          FROM `glpi_computers_softwareversions` 
+          INNER JOIN `glpi_computers` 
+                ON (`glpi_computers`.`id` = `glpi_computers_softwareversions`.`computers_id`) 
+                        WHERE `glpi_computers_softwareversions`.`softwareversions_id` = ".$softwareversions_id." 
+                        AND `glpi_computers`.`is_deleted` = 0 
+                        AND `glpi_computers`.`is_template` = 0
+                        AND `glpi_computers_softwareversions`.`is_deleted` = 0"
+          ;
       $result = $DB->request($request)->next();
       return $result['cpt'];
    }
@@ -259,30 +251,28 @@ class Computer_SoftwareVersion extends CommonDBRelation {
    static function countForSoftware($softwares_id) {
       global $DB;
 
-      $request = [
-         'FROM'         => 'glpi_softwareversions',
-         'COUNT'        => 'cpt',
-         'INNER JOIN'   => [
-            'glpi_computers_softwareversions'   => [
-               'FKEY'   => [
-                  'glpi_computers_softwareversions'   => 'softwareversions_id',
-                  'glpi_softwareversions'             => 'id'
-               ]
-            ],
-            'glpi_computers'  => [
-               'FKEY'   => [
-                  'glpi_computers_softwareversions'   => 'computers_id',
-                  'glpi_computers'                    => 'id'
-               ]
-            ]
-         ],
-         'WHERE'        => [
-            'glpi_softwareversions.softwares_id'         => $softwares_id,
-            'glpi_computers.is_deleted'                  => 0,
-            'glpi_computers.is_template'                 => 0,
-            'glpi_computers_softwareversions.is_deleted' => 0
-         ] + getEntitiesRestrictCriteria('glpi_computers')
-      ];
+      $request = 
+                     "SELECT COUNT(DISTINCT   `glpi_computers`.`name`) AS cpt
+                    
+                FROM `glpi_computers_softwareversions`
+                INNER JOIN `glpi_softwareversions`
+                     ON (`glpi_computers_softwareversions`.`softwareversions_id`
+                           = `glpi_softwareversions`.`id`)
+                INNER JOIN `glpi_computers`
+                     ON (`glpi_computers_softwareversions`.`computers_id` = `glpi_computers`.`id`)
+                LEFT JOIN `glpi_softwares` ON (`glpi_softwareversions`.`softwares_id` = `glpi_softwares`.`id`)
+                LEFT JOIN `glpi_entities` ON (`glpi_computers`.`entities_id` = `glpi_entities`.`id`)
+                LEFT JOIN `glpi_locations`
+                     ON (`glpi_computers`.`locations_id` = `glpi_locations`.`id`)
+                LEFT JOIN `glpi_states` ON (`glpi_computers`.`states_id` = `glpi_states`.`id`)
+                LEFT JOIN `glpi_groups` ON (`glpi_computers`.`groups_id` = `glpi_groups`.`id`)
+                LEFT JOIN `glpi_users` ON (`glpi_computers`.`users_id` = `glpi_users`.`id`)
+                WHERE `glpi_softwareversions`.`softwares_id` = ".$softwares_id."
+                       AND `glpi_computers`.`is_deleted` = 0
+                       AND `glpi_computers`.`is_template` = 0
+                       AND `glpi_computers_softwareversions`.`is_deleted` = 0"
+          ;
+
       $results = $DB->request($request);
       $result = $DB->request($request)->next();
       return $result['cpt'];
@@ -335,6 +325,7 @@ class Computer_SoftwareVersion extends CommonDBRelation {
                           'compname'          => __('Name'),
                           'entity'            => __('Entity'),
                           'serial'            => __('Serial number'),
+                           'softname'            => __('Software'),
                           'otherserial'       => __('Inventory number'),
                           'location,compname' => __('Location'),
                           'state,compname'    => __('Status'),
@@ -389,32 +380,32 @@ class Computer_SoftwareVersion extends CommonDBRelation {
       }
 
       // Display the pager
-      Html::printAjaxPager(self::getTypeName(Session::getPluralNumber()), $start, $number);
+       ?>
+
+
+<form action="ind_software_report.php" method="get">
+    <button class="pull-right" name="id" value="<?php echo $_GET["id"]?>"><i class="fa fa-download"></i></button>
+</form>
+<br> 
+<?php
+           Html::printAjaxPager(self::getTypeName(Session::getPluralNumber()), $start, $number);
 
       //needs DB::request() to support aliases to get migrated
-      $query = "SELECT DISTINCT `glpi_computers_softwareversions`.*,
-                       `glpi_computers`.`name` AS compname,
-                       `glpi_computers`.`id` AS cID,
-                       `glpi_computers`.`serial`,
-                       `glpi_computers`.`otherserial`,
-                       `glpi_users`.`name` AS username,
-                       `glpi_users`.`id` AS userid,
-                       `glpi_users`.`realname` AS userrealname,
-                       `glpi_users`.`firstname` AS userfirstname,
-                       `glpi_softwareversions`.`name` AS version,
-                       `glpi_softwareversions`.`id` AS vID,
+      $query = " SELECT DISTINCT `glpi_computers`.`name` AS compname, `glpi_computers`.`id` AS cID,`glpi_computers_softwareversions`.`date_install`,
+                     `glpi_computers`.`serial`,
+                     `glpi_softwareversions`.`name` AS version,
+                      `glpi_softwares`.`name` AS softname,
+                                             `glpi_softwareversions`.`id` AS vID,
                        `glpi_softwareversions`.`softwares_id` AS sID,
                        `glpi_softwareversions`.`name` AS vername,
-                       `glpi_entities`.`completename` AS entity,
-                       `glpi_locations`.`completename` AS location,
-                       `glpi_states`.`name` AS state,
-                       `glpi_groups`.`name` AS groupe
+                       `glpi_entities`.`completename` AS entity
                 FROM `glpi_computers_softwareversions`
                 INNER JOIN `glpi_softwareversions`
                      ON (`glpi_computers_softwareversions`.`softwareversions_id`
                            = `glpi_softwareversions`.`id`)
                 INNER JOIN `glpi_computers`
                      ON (`glpi_computers_softwareversions`.`computers_id` = `glpi_computers`.`id`)
+                LEFT JOIN `glpi_softwares` ON (`glpi_softwareversions`.`softwares_id` = `glpi_softwares`.`id`)
                 LEFT JOIN `glpi_entities` ON (`glpi_computers`.`entities_id` = `glpi_entities`.`id`)
                 LEFT JOIN `glpi_locations`
                      ON (`glpi_computers`.`locations_id` = `glpi_locations`.`id`)
@@ -533,6 +524,7 @@ class Computer_SoftwareVersion extends CommonDBRelation {
                   echo "<td>".$data['entity']."</td>";
                }
                echo "<td>".$data['serial']."</td>";
+                echo "<td>".$data['softname']."</td>";
                echo "<td>".$data['otherserial']."</td>";
                echo "<td>".$data['location']."</td>";
                echo "<td>".$data['state']."</td>";
@@ -609,7 +601,7 @@ class Computer_SoftwareVersion extends CommonDBRelation {
       $tot = 0;
 
       $iterator = $DB->request([
-         'SELECT' => ['id', 'completename'],
+         'SELECT ' => ['id', 'completename'],
          'FROM'   => 'glpi_entities',
          'WHERE'  => getEntitiesRestrictCriteria('glpi_entities'),
          'ORDER'  => ['completename']
@@ -650,12 +642,7 @@ class Computer_SoftwareVersion extends CommonDBRelation {
       }
        ?>
 
-<!--
-<form method="get" action="">
-  <button class="pull-right" formaction="software_rpt_details.php?id=" ><i class="fa fa-download"></i></button>
-    
-</form>
--->
+
 <form action="software_rpt_details.php" method="post">
     <button class="pull-right" name="id" value="<?php echo $_GET["id"]?>"><i class="fa fa-download"></i></button>
 </form>

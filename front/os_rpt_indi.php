@@ -1,17 +1,6 @@
 <?php
 $id = $_POST["id"];
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "glpi";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-} 
-
+include 'report_config.php';
 $sql = "SELECT name
 FROM `glpi_computers`
 WHERE `id` =".$id;
@@ -25,10 +14,10 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
-$conn->close();
+
 $filename = $name.".csv";
 
-$con = mysqli_connect('localhost','root','root','glpi') or exit("Connection Error");
+ 
   header('Content-Type: text/csv; charset=utf-8');
 
   header('Content-Disposition: attachment; filename='.$filename);
@@ -54,12 +43,12 @@ $con = mysqli_connect('localhost','root','root','glpi') or exit("Connection Erro
                 WHERE `glpi_items_operatingsystems`.`items_id` = ".$id."
                       AND `glpi_items_operatingsystems`.`itemtype` = 'Computer'  ORDER BY `glpi_items_operatingsystems`.`id` DESC";
   
-  $result = mysqli_query($con,$query);
+  $result = mysqli_query($conn,$query);
 $x=1;
   while($row = mysqli_fetch_assoc($result)){
       $x++;
     fputcsv($output,$row);
         }
   fclose($output);
-
+$conn->close();
 ?>

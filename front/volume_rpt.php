@@ -1,18 +1,7 @@
 <?php
 $id = $_POST["id"];
 
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "glpi";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-} 
-
+include 'report_config.php';
 $sql = "SELECT name
 FROM `glpi_computers`
 WHERE `id` =".$id;
@@ -24,7 +13,7 @@ if ($result->num_rows > 0) {
         $name = "Volume_Details_".$row["name"];
     }
 } else {
-     echo "Invalid Device Id!!";
+     echo "Invalid Device Id(Name)!!";
 
 }
 
@@ -54,7 +43,7 @@ if ($result->num_rows > 0) {
         $i++;
     }
     
-    $con = mysqli_connect('localhost','root','root','glpi') or exit("Connection Error");
+   
   header('Content-Type: text/csv; charset=utf-8');
 
   header('Content-Disposition: attachment; filename='.$filename);
@@ -67,7 +56,7 @@ if ($result->num_rows > 0) {
     }
     
 } else {
-    echo "Invalid Device Id!!";
+    echo "Invalid Device Id(Report)!!";
 }
 $conn->close();
 ?>

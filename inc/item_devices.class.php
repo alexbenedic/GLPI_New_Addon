@@ -1175,7 +1175,7 @@ class Item_Devices extends CommonDBRelation {
 
       $item   = $this->getOnePeer(0);
       $device = $this->getOnePeer(1);
-echo "<button>test here</button>";
+//echo "<button>test here</button>";
       echo "<tr class='tab_bg_1'><td>".__('Item')."</td>";
       echo "<td>";
       if ($item === false) {

@@ -96,11 +96,6 @@ if (isset($_POST["add"])) {
 
 } else {
    Html::header(Software::getTypeName(Session::getPluralNumber()), $_SERVER['PHP_SELF'], "assets", "software");
-        ?>
-<form action="ind_software_report.php" method="get">
-    <button class="pull-right" name="id" value="<?php echo $_GET["id"]?>"><i class="fa fa-download"></i></button>
-</form>
-<?php
    $soft->display(['id'           => $_GET["id"],
                         'withtemplate' => $_GET["withtemplate"]]);
 
